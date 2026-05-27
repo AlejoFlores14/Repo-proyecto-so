@@ -1,5 +1,5 @@
 import pandas as pd
-df = pd.read_csv('resultados_torneo.csv',sep=';',encoding='latin-1')
+df = pd.read_csv('datos/resultados_torneo.csv',sep=';',encoding='latin-1')
 def partidos_ganados():
     # print(df)
     #calculo la cantidad de partidos ganados por cada equipo
@@ -45,3 +45,8 @@ def tabla_posiciones():
     print("Tabla de posiciones:")
     for equipo, datos in tabla_ordenada.items():
         print(f"{equipo}: Puntos={datos['Puntos']}, Goles a Favor={datos['Goles_Favor']}, Goles en Contra={datos['Goles_Contra']}")
+def promedio_goles():
+    total_goles = df['Goles_Local'].sum() + df['Goles_Visitante'].sum()
+    total_partidos = len(df)
+    promedio = total_goles / total_partidos if total_partidos > 0 else 0
+    print(f"Promedio de goles por partido: {promedio:.2f}")

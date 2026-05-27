@@ -11,8 +11,9 @@
 # ● Generar un gráfico comparativo de rendimiento entre equipos.
 
 #importo el archivo con los resultados de los partidos
-from funciones import partidos_ganados, tabla_posiciones
+from funciones import partidos_ganados, tabla_posiciones, promedio_goles
 
 if __name__ == "__main__":
     partidos_ganados()
     tabla_posiciones()
+    promedio_goles()

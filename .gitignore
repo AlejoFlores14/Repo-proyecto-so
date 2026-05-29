@@ -1,12 +1,9 @@
 # Ignorar carpetas __pycache__
 __pycache__/
-
-# Ignorar archivos compilados de Python
+scripts/__pycache__/
 *.pyc
 
 # Ignorar entorno virtual
 .venv/
 venv/
 
-# Archivos de VSCode opcional
-.vscode/

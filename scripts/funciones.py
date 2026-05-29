@@ -1,50 +1,60 @@
 import pandas as pd
+import matplotlib.pyplot as plt
+# leemos el archivo CSV con los resultados del torneo, utilizando el separador ';' y la codificación 'latin-1'
 df = pd.read_csv('datos/resultados_torneo.csv',sep=';',encoding='latin-1')
-def partidos_ganados():
-    # print(df)
-    #calculo la cantidad de partidos ganados por cada equipo
-    victorias= {}
+# funcion para calcular las estadisticas de los equipos, recorriendo el CSV una sola vez y devolviendo un diccionario con las estadisticas necesarias para las demás funciones
+def calcular_estadisticas():
+    estadisticas= {}
+# recorremos el CSV una sola vez, utilizando iterrows() para obtener cada fila como un diccionario
     for _, partido in df.iterrows():
         equipo_local = partido['Equipo_Local']
         equipo_visitante = partido['Equipo_Visitante']
         goles_local = partido['Goles_Local']
         goles_visitante = partido['Goles_Visitante']
-        if equipo_local not in victorias:
-            victorias[equipo_local ] = 0
-        if equipo_visitante not in victorias:
-            victorias[equipo_visitante] = 0
-        if goles_local > goles_visitante:
-            victorias[equipo_local] += 1
-        elif goles_visitante > goles_local:
-            victorias[equipo_visitante] += 1
-    print("Cantidad de partidos ganados por cada equipo:")
-    print(victorias)
-
-def tabla_posiciones():
-    posiciones = {}
-    for _, partido in df.iterrows():
-        equipo_local = partido['Equipo_Local']
-        equipo_visitante = partido['Equipo_Visitante']
-        goles_local = partido['Goles_Local']
-        goles_visitante = partido['Goles_Visitante']
+        # para cada equipo, si no está en el diccionario de estadisticas, lo inicializamos con 0  
         for equipo in [equipo_local, equipo_visitante]:
-            if equipo not in posiciones:
-                posiciones[equipo] = {'Puntos': 0, 'Goles_Favor': 0, 'Goles_Contra': 0}
+            if equipo not in estadisticas:
+                estadisticas[equipo] = {'Puntos': 0,
+                                        'Goles_Favor': 0,
+                                        'Goles_Contra': 0,
+                                        'Victorias': 0,
+                                        'Empates': 0,
+                                        'Derrotas': 0}
+        # calculamos los puntos, victorias, empates y derrotas para cada equipo, dependiendo del resultado del partido
         if goles_local > goles_visitante:
-            posiciones[equipo_local]['Puntos'] += 3
+            estadisticas[equipo_local]['Puntos'] += 3
+            estadisticas[equipo_local]['Victorias'] += 1
+            estadisticas[equipo_visitante]['Derrotas'] += 1
         elif goles_visitante > goles_local:
-            posiciones[equipo_visitante]['Puntos'] += 3
+            estadisticas[equipo_visitante]['Victorias'] += 1
+            estadisticas[equipo_local]['Derrotas'] += 1
+            estadisticas[equipo_visitante]['Puntos'] += 3
         else:
-            posiciones[equipo_local]['Puntos'] += 1
-            posiciones[equipo_visitante]['Puntos'] += 1
-        posiciones[equipo_local]['Goles_Favor'] += goles_local
-        posiciones[equipo_local]['Goles_Contra'] += goles_visitante
-        posiciones[equipo_visitante]['Goles_Favor'] += goles_visitante
-        posiciones[equipo_visitante]['Goles_Contra'] += goles_local
-    tabla_ordenada = dict(sorted(posiciones.items(), key=lambda item:(item[1]['Puntos'], item[1]['Goles_Favor']- item[1]['Goles_Contra']), reverse=True))
+            estadisticas[equipo_local]['Puntos'] += 1           
+            estadisticas[equipo_visitante]['Puntos'] += 1
+            estadisticas[equipo_local]['Empates'] += 1
+            estadisticas[equipo_visitante]['Empates'] += 1
+
+        estadisticas[equipo_local]['Goles_Favor'] += goles_local
+        estadisticas[equipo_local]['Goles_Contra'] += goles_visitante
+        estadisticas[equipo_visitante]['Goles_Favor'] += goles_visitante
+        estadisticas[equipo_visitante]['Goles_Contra'] += goles_local
+    return estadisticas
+# funcion para calcular la cantidad de partidos ganados por cada equipo,
+# utilizando el diccionario de estadisticas calculado previamente
+def partidos_ganados():
+    victorias = calcular_estadisticas()
+    ordenado = sorted(victorias.items(), key=lambda x: x[1]['Victorias'], reverse=True)
+    for equipo, datos in ordenado:
+        print(f"{equipo}: {datos['Victorias']} partidos ganados")
+# funcion para calcular la tabla de posiciones, ordenando el diccionario de estadisticas por puntos y mostrando los resultados
+def tabla_posiciones():
+    posiciones = calcular_estadisticas()
+    tabla_ordenada = sorted(posiciones.items(), key=lambda x: x[1]['Puntos'], reverse=True)
     print("Tabla de posiciones:")
-    for equipo, datos in tabla_ordenada.items():
-        print(f"{equipo}: Puntos={datos['Puntos']}, Goles a Favor={datos['Goles_Favor']}, Goles en Contra={datos['Goles_Contra']}")
+    for equipo, datos in tabla_ordenada:
+        print(f"{equipo}: Puntos:{datos['Puntos']}, Goles a Favor:{datos['Goles_Favor']}, Goles en Contra:{datos['Goles_Contra']}")
+# funcion para calcular el promedio de goles por partido, sumando los goles locales y visitantes y dividiendo por la cantidad de partidos
 def promedio_goles():
     total_goles = df['Goles_Local'].sum() + df['Goles_Visitante'].sum()
     total_partidos = len(df)

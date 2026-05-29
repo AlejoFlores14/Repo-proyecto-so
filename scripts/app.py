@@ -17,3 +17,5 @@ if __name__ == "__main__":
     partidos_ganados()
     tabla_posiciones()
     promedio_goles()
+    # grafico_comparativo()
+    

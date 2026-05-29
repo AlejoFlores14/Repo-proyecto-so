@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 # leemos el archivo CSV con los resultados del torneo, utilizando el separador ';' y la codificación 'latin-1'
 df = pd.read_csv('datos/resultados_torneo.csv',sep=';',encoding='latin-1')
 # funcion para calcular las estadisticas de los equipos, recorriendo el CSV una sola vez y devolviendo un diccionario con las estadisticas necesarias para las demás funciones
@@ -60,3 +61,47 @@ def promedio_goles():
     total_partidos = len(df)
     promedio = total_goles / total_partidos if total_partidos > 0 else 0
     print(f"Promedio de goles por partido: {promedio:.2f}")
+# funciones para generar un gráfico comparativo de rendimiento entre equipos,
+# utilizando el diccionario de estadisticas calculado previamente y mostrando los puntos,
+# goles a favor y goles en contra de cada equipo en un gráfico de barras
+def grafico_comparativo():
+    estadisticas = calcular_estadisticas()
+    estadisticas_ordenadas = sorted(estadisticas.items(), key=lambda x: x[1]['Puntos'], reverse=True)
+    equipos = list(equipo for equipo, _ in estadisticas_ordenadas)
+    puntos = [datos['Puntos'] for equipo, datos in estadisticas_ordenadas]
+    goles_favor = [datos['Goles_Favor'] for _, datos in estadisticas_ordenadas]
+    goles_contra = [datos['Goles_Contra'] for _, datos in estadisticas_ordenadas]
+    victorias = [datos['Victorias'] for _, datos in estadisticas_ordenadas]
+    empates = [datos['Empates'] for _, datos in estadisticas_ordenadas]
+    derrotas = [datos['Derrotas'] for _, datos in estadisticas_ordenadas]
+
+    x = np.arange(len(equipos))
+    ancho = 0.15
+    fig, axes = plt.subplots(2, 1, figsize=(12, 10))
+    fig.suptitle('Comparativa de Rendimiento entre Equipos', fontsize=16, fontweight='bold', y=1.05)
+    colores = plt.cm.RdYlGn(np.linspace(0.2, 0.9, len(equipos)))
+    barras  = axes[0].bar(equipos, puntos, color=colores, edgecolor='black', linewidth=0.7)
+    axes[0].set_title('Puntos por Equipo', fontweight='bold')
+    axes[0].set_ylabel('Puntos')
+    axes[0].set_xticks(range(len(equipos)))
+    axes[0].set_xticklabels(equipos, rotation=30, ha='right')
+    axes[0].bar_label(barras, padding=3, fontweight='bold')
+    axes[0].set_ylim(0, max(puntos) * 1.15)
+    axes[0].grid(axis='y', linestyle='--', alpha=0.5)
+    
+    b1 = axes[1].bar(x - ancho / 2, goles_favor,  ancho, label='Goles a Favor',
+                     color='steelblue', edgecolor='black', linewidth=0.7)
+    b2 = axes[1].bar(x + ancho / 2, goles_contra, ancho, label='Goles en Contra',
+                     color='tomato',    edgecolor='black', linewidth=0.7)
+    axes[1].set_title('Goles a Favor vs. En Contra', fontweight='bold')
+    axes[1].set_ylabel('Goles')
+    axes[1].set_xticks(x)
+    axes[1].set_xticklabels(equipos, rotation=30, ha='right')
+    axes[1].legend()
+    axes[1].bar_label(b1, padding=2)
+    axes[1].bar_label(b2, padding=2)
+    axes[1].set_ylim(0, max(goles_favor + goles_contra) * 1.15)
+    axes[1].grid(axis='y', linestyle='--', alpha=0.5)
+    plt.tight_layout()
+    plt.savefig('comparativa_rendimiento.png', dpi=300, bbox_inches='tight')
+    plt.show()

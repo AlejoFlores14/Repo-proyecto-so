@@ -27,4 +27,3 @@ if __name__ == "__main__":
     promedio_goles()
     print("-" * 30)
     grafico_comparativo()
-    

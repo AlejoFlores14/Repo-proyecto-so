@@ -116,7 +116,7 @@ def grafico_comparativo():
     axes[1].set_ylim(0, max(goles_favor + goles_contra) * 1.15)
     axes[1].grid(axis='y', linestyle='--', alpha=0.5)
     plt.tight_layout()
-    plt.savefig('comparativa_rendimiento.png', dpi=300, bbox_inches='tight')
+    plt.savefig('resultados/comparativa_rendimiento.png', dpi=300, bbox_inches='tight')
     plt.show()
 def detalle_partidos():
     """Muestra el detalle de los partidos jugados."""
